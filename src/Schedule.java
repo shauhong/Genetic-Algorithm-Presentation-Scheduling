@@ -80,7 +80,7 @@ public class Schedule {
 		Timeslot timeslot = (Timeslot)timeslotArray[(int) (timeslotArray.length * Math.random())]; 
 		return timeslot;
 	}
-	/**Incomplete**/
+	
 	public int getNumPresentations() {
 		this.numPresentations= presentations.size();
 		return numPresentations;
@@ -209,13 +209,6 @@ public class Schedule {
 		return penalty;
 	}
 	
-	public int calSoftConstraints(ArrayList<String> checkedStaff, Staff[] staffs) {
-		int penalty=0;
-		penalty+=consecutivePresentations(checkedStaff,staffs);
-		penalty+=numOfDays(checkedStaff,staffs);
-		penalty+=changeOfVenue(checkedStaff,staffs);
-		return penalty;
-	}
 	
 	public int consecutivePresentations(ArrayList<String> checkedStaff, Staff[] staffs) {
 		int penalty=0;
@@ -247,29 +240,15 @@ public class Schedule {
 		return penalty;
 	}
 	
-	public int changeOfVenue(ArrayList<String> checkedStaff, Staff[] staffs) {
+	public int changeOfVenue(ArrayList<String> checkedStaff,Staff[] staffs) {
 		int penalty=0;
 		//SC03
 		for(int j=0;j<staffs.length;j++) {
 			if(!checkedStaff.contains(staffs[j].getStaffID())) {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].isChangeVenue()) {
-					ArrayList<Integer> staffTimeslots=staffs[j].getSlots();
-					Collections.sort(staffTimeslots);
-					int prevTimeslot=-1;
-					for(int staffTimeslot:staffTimeslots) {
-						if(prevTimeslot!=-1) {
-							if(prevTimeslot+1==staffTimeslot) {
-								int prevVenue=this.getTimeSlot(prevTimeslot).getVenueID();
-								int currentVenue=this.getTimeSlot(staffTimeslot).getVenueID();
-								if(prevVenue!=currentVenue) {
-//									System.out.println(staffs[j].getStaffID()+" changed venue.");
-									penalty+=1;
-									break;
-								}
-							}
-						}
-						prevTimeslot=staffTimeslot;
+					if(staffs[j].venueChanged()) {
+						penalty+=1;
 					}
 				}
 			}

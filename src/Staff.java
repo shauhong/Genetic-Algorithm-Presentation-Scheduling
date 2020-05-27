@@ -36,36 +36,77 @@ public class Staff {
 	
 	public int getNumOfPresentationDays() {
 		int numOfPresentationDays=0;
+		boolean workingDays[]=new boolean[] 
+				{false,false,false,false,false};
 		Collections.sort(currentSlots);
-		int startDay=(currentSlots.get(0)-1)/60;
-		int lastDay=(currentSlots.get(currentSlots.size()-1)-1)/60;
-		numOfPresentationDays=(lastDay-startDay)+1;
+		for(int timeslotID:currentSlots) {
+			int timeslotIndex=(timeslotID-1)/60;
+			if(workingDays[timeslotIndex]==false) {
+				numOfPresentationDays+=1;
+				workingDays[timeslotIndex]=true;
+			}
+		}
 		return numOfPresentationDays;
 	}
-	
+		
 	public int getConsecutiveSlot() {
-		Collections.sort(currentSlots);
 		int consecutiveCount=0;
 		int maxCount=0;
-		int prevTimeslotID=-1;
+		ArrayList<Integer> checked = new ArrayList<>();
+		Collections.sort(currentSlots);
 		for(int timeslotID:currentSlots) {
 			if(consecutiveCount==0) {
-				consecutiveCount++;
-				if(consecutiveCount>maxCount) {
-					maxCount=consecutiveCount;
+				consecutiveCount=1;
+			}
+			checked.add(timeslotID);
+			int timeslotIndex=timeslotID-1;
+			int day=timeslotIndex/60;
+			int column=timeslotIndex%15;
+			for(int tempTimeslotID:currentSlots) {
+				if(!checked.contains(tempTimeslotID)) {
+					int tempTimeslotIndex=tempTimeslotID-1;
+					int tempDay=tempTimeslotIndex/60;
+					int tempColumn=tempTimeslotIndex%15;
+					if(day==tempDay && column+1==tempColumn) {
+						consecutiveCount++;
+					}
 				}
 			}
-			else if(prevTimeslotID+1==timeslotID) {
-				consecutiveCount++;
-				if(consecutiveCount>maxCount) {
-					maxCount=consecutiveCount;
-				}
-			}else {
-				consecutiveCount=0;
+			if(consecutiveCount>maxCount) {
+				maxCount=consecutiveCount;
 			}
-			prevTimeslotID=timeslotID;
+			consecutiveCount=0;
 		}
-		return consecutiveCount;
+//		System.out.println(this.staffID+" consecutive for "+maxCount);
+		return maxCount;
+	}
+	
+	public boolean venueChanged() {
+		//SC03
+		ArrayList<Integer> checkedTimeslot=new ArrayList<>();
+		Collections.sort(currentSlots);
+		for(int currentTimeslot:currentSlots) {
+			checkedTimeslot.add(currentTimeslot);
+			int currentIndex=currentTimeslot-1;
+			int day=currentIndex/60;
+			int columnIndex=currentIndex%15;
+			for(int tempTimeslot:currentSlots) {
+				if(!checkedTimeslot.contains(tempTimeslot)) {
+					int tempIndex=tempTimeslot-1;
+					int tempDay=tempIndex/60;
+					int tempColumnIndex=tempIndex%15;
+					if(day==tempDay && (columnIndex+1)==tempColumnIndex) { 
+						if(tempIndex/15!=currentIndex/15) {
+//							System.out.println(staffID+" changed venue");
+//							System.out.println(currentTimeslot+": "+(currentIndex/15+1)%4);
+//							System.out.println(tempTimeslot+": "+(tempIndex/15+1)%4);
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	

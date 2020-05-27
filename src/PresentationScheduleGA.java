@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class PresentationScheduleGA {
@@ -11,7 +13,8 @@ public class PresentationScheduleGA {
 		//Initialize timetable
 		Schedule schedule = initializeSchedule();
 		//Initialize GA
-		GeneticAlgorithm GA = new GeneticAlgorithm(100,0.01,0.9,5,5,0.0000);
+		GeneticAlgorithm GA = new GeneticAlgorithm(200,0.01,0.9,10,20,0.9,0.001);	
+//		check("GeneratedSchedule.csv",schedule,GA);
 		//Initialize population
 		Population population=GA.initPopulation(schedule);
 		//Evaluate population
@@ -56,9 +59,10 @@ public class PresentationScheduleGA {
 		
 		//Write to external file
 		writeGeneratedSchedule(presentations,schedule.getTimeslots().size());
-		
-			
 	}
+	
+	
+	
 	public static void writeGeneratedSchedule(Presentation[] presentations, int totalTimeslot) {
 		try {
 			PrintWriter writer=new PrintWriter(new File("GeneratedSchedule.csv"));
@@ -259,5 +263,37 @@ public class PresentationScheduleGA {
 			timeslotID++;
 			venueID=(((i+1)/15)%4)+1;
 		}
+	}
+	
+	public static void check(String fileName, Schedule schedule, GeneticAlgorithm GA) {
+		//Stub
+		try {
+			int index=1;
+			int chromosome[]=new int[118];
+			HashMap<Integer,Integer> presentationMap=new HashMap<>();
+			Scanner test = new Scanner(new File(fileName));
+			while(test.hasNextLine()) {
+				String line[]=test.nextLine().split(",");
+				for(int i=0;i<line.length;i++) {
+					String data[]=line[i].split(" ");
+					if(!data[0].equals("null")) {
+						int presentationID=Integer.parseInt(data[0].substring(1));
+						presentationMap.put(presentationID, index);
+					}
+					index++;
+				}
+			}
+			test.close();
+			for(int i=0;i<118;i++) {
+				chromosome[i]=presentationMap.get(i+1);
+			}
+			Individual i=new Individual(chromosome);
+			GA.calcFitness(i, schedule);
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//End stub
 	}
 }

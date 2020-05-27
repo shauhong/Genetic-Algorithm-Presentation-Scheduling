@@ -10,14 +10,16 @@ public class GeneticAlgorithm {
 	private double coolingRate;
 	private Map<Individual,Integer> fitnessHash;
 	private int tournamentSize;
-
+	private double selectProbability;
+	
 	public GeneticAlgorithm(int populationSize, double mutationRate, double crossoverRate, int elitismCount,
-			int tournamentSize, double coolingRate) {
+			int tournamentSize, double selectProbability, double coolingRate) {
 		this.populationSize = populationSize;
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.elitismCount = elitismCount;
 		this.tournamentSize = tournamentSize;
+		this.selectProbability=selectProbability;
 		this.coolingRate=coolingRate;
 		this.fitnessHash=new LinkedHashMap<Individual,Integer>(){
 			protected boolean removeEldestEntry(Map.Entry<Individual,Integer>eldest) {
@@ -54,6 +56,7 @@ public class GeneticAlgorithm {
 		cloneSchedule.createScheduledPresentations(individual);
 		int fitness=cloneSchedule.calcPenalty();
 		individual.setFitness(fitness);
+//		System.out.println("Fitness: "+fitness);
 		this.fitnessHash.put(individual, fitness);
 		return fitness;
 
@@ -67,7 +70,7 @@ public class GeneticAlgorithm {
 		return population.getFittest(0).getFitness() == 0 ;
 	}
 
-	public Individual selectParent(Population population) {
+	public Individual selectParent(Population population, double selectProbability) {
 		// Create tournament
 		Population tournament = new Population(this.tournamentSize);
 
@@ -79,7 +82,14 @@ public class GeneticAlgorithm {
 		}
 
 		// Return the best
-		return tournament.getFittest(0);
+//		return tournament.getFittest(0);
+		for(int i=0; i<this.tournamentSize; i++) {
+			Individual tournamentIndividual = tournament.getFittest(i);
+			if(selectProbability>Math.random()) {
+				return tournamentIndividual;
+			}
+		}
+		return tournament.getFittest(this.tournamentSize-1);
 	}
 	
 	public Population mutatePopulation(Population population, Schedule schedule) {
@@ -118,12 +128,12 @@ public class GeneticAlgorithm {
 			Individual parent1 = population.getFittest(populationIndex);
 
 			// Apply crossover to this individual?
-			if (this.crossoverRate*temperature> Math.random() && populationIndex >= this.elitismCount) {
+			if (this.crossoverRate> Math.random() && populationIndex >= this.elitismCount) {
 				// Initialize offspring
 				Individual offspring = new Individual(parent1.getChromosomeLength());
 				
 				// Find second parent
-				Individual parent2 = selectParent(population);
+				Individual parent2 = selectParent(population,selectProbability);
 
 				// Loop over genome
 				for (int geneIndex = 0; geneIndex < parent1.getChromosomeLength(); geneIndex++) {
