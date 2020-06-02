@@ -150,8 +150,6 @@ public class Schedule {
 		//HC01
 		for(int j=0;j<scheduledPresentations.length;j++) {
 			if(j!=i && timeslotID==scheduledPresentations[j].getTimeslotID()) {
-//				System.out.println("Scheduled Presentation ID: "+scheduledPresentations[j].getPresentationID());
-//				System.out.println("Same presentation");
 				penalty+=100;
 			}
 		}
@@ -170,7 +168,6 @@ public class Schedule {
 				for(int k=0;k<tempStaffsID.length;k++) {
 					for(int l=0;l<tempStaffsID.length;l++) {
 						if(tempStaffsID[k].equals(staffsID[l])) {
-//							System.out.println("Concurrent staff: "+tempStaffsID[k]);
 							penalty+=100;
 						}
 					}
@@ -186,8 +183,6 @@ public class Schedule {
 		ArrayList<Integer> unavailableVenueSlots=venue.getUnavaibleSlots();
 		for(int unavailableTimeslotID:unavailableVenueSlots) {
 			if(unavailableTimeslotID==timeslotID) {
-//				System.out.println(venue.getVenueName()+" unavailable for presentation "
-//			+presentationID+" at "+timeslotID);
 				penalty+=100;
 			}
 		}
@@ -203,8 +198,6 @@ public class Schedule {
 		}
 		for(int unavailableTimeslotID:unavailableStaffSlots) {
 			if(unavailableTimeslotID==timeslotID) {
-//				System.out.println("Staff unavailable for presentation "
-//						+presentationID+" at "+timeslotID);
 				penalty+=100;
 			}
 		}
@@ -219,7 +212,6 @@ public class Schedule {
 			if(!checkedStaff.contains(staffs[j].getStaffID())) {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].getConsecutiveSlot()>staffs[j].getPresentationCons()) {
-//					System.out.println(staffs[j].getStaffID()+" consecutive presentations exceeded");
 					penalty+=1;
 				}
 			}
@@ -234,7 +226,6 @@ public class Schedule {
 			if(!checkedStaff.contains(staffs[j].getStaffID())) {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].getNumOfPresentationDays()>staffs[j].getPresentationDays()) {
-//					System.out.println(staffs[j].getStaffID()+" number of days exceeded.");
 					penalty+=1;
 				}
 			}
@@ -250,7 +241,6 @@ public class Schedule {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].isChangeVenue()) {
 					if(staffs[j].venueChanged()) {
-//						System.out.println(staffs[j].getStaffID()+" changed venue.");
 						penalty+=1;
 					}
 				}

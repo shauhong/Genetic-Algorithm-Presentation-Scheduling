@@ -12,57 +12,39 @@ public class PresentationScheduleGA {
 	public static void main(String[] arg) {
 		//Initialize timetable
 		Schedule schedule = initializeSchedule();
-		//Initialize GA
+		//Initialize Genetic Algorithm
 		GeneticAlgorithm GA = new GeneticAlgorithm(100,0.01,0.9,5,15,0.001);	
 		//Initialize population
 		Population population=GA.initPopulation(schedule);
 		//Evaluate population
 		GA.evalPopulation(population, schedule);
 		int generation=1; //keep track population
-		Instant start = Instant.now();
-		//Start evolution
+		//Start genetic operation
         while (!GA.isTerminationConditionMet(generation, 1000) 
                 && !GA.isTerminationConditionMet(population)) {
-                // Print fitness
+                // Print fitness value of best individual of current generation
                 System.out.println("Generation " + generation + ", Best Fitness: "
                 + population.getFittest(0).getFitness());
-                // Apply crossover
+                // Apply crossover operator
                 population = GA.crossoverPopulation(population);
-                // Apply mutation
+                // Apply mutation operator
                 population = GA.mutatePopulation(population, schedule);
-                // Apply Simulated Annealing
-//                population = GA.simulatedAnnealing(population, schedule);
                 // Evaluate population
                 GA.evalPopulation(population, schedule);
-                //Cool Temperature
+                // Cool Temperature
                 GA.coolTemperature();
                 // Increment the current generation
                 generation++;
             }
-        Instant end = Instant.now();
-        Duration timeEllapsed = Duration.between(start, end);
 		//Print final fitness
         int finalFitness=population.getFittest(0).getFitness();
 		schedule.createScheduledPresentations(population.getFittest(0));
 		Presentation presentations[]=schedule.getScheduledPresentations();
 		System.out.println();
 		System.out.println("Number of generations: "+--generation);
-//		System.out.println("Time taken: "+timeEllapsed.toMillis()+" milliseconds");
 		System.out.println("Final solution fitness: "+finalFitness);
 		System.out.println("Hard constraints violated: "+Math.abs(finalFitness/100)+
-				"\tSoft constraints violated: "+Math.abs(finalFitness%100));
-		
-		//Print final schedule
-	
-//		for(int i=0;i<presentations.length;i++) {
-//			System.out.println("Presentation: P"+presentations[i].getPresentationID());
-//			int timeslotID=presentations[i].getTimeslotID();
-//			System.out.println("Timeslot: "+schedule.getTimeSlot(timeslotID).getTimeslot());
-//			System.out.println("Venue: "+schedule.getVenue(schedule.getTimeSlot(timeslotID).getVenueID()).getVenueName());
-//			
-//			
-//		}
-		
+				"\tSoft constraints violated: "+Math.abs(finalFitness%100));		
 		//Write to external file
 		writeGeneratedSchedule("GeneratedSchedule.csv",presentations,schedule.getTimeslots().size());
 		//Print output
@@ -121,9 +103,6 @@ public class PresentationScheduleGA {
 				boolean found=false;
 				for(int j=0;j<presentations.length;j++) {
 					if(timeSlot==presentations[j].getTimeslotID()) {
-//						line.append("P"+presentations[j].getPresentationID()+" "+presentations[j].getStaffID()[0]
-//								+" "+presentations[j].getStaffID()[1]
-//								+" "+presentations[j].getStaffID()[2]);
 						line.append("P"+presentations[j].getPresentationID());
 						found=true;
 						break;
@@ -144,6 +123,7 @@ public class PresentationScheduleGA {
 			e.printStackTrace();
 		}
 	}
+	
 	public static Schedule initializeSchedule() {
 		Schedule schedule = new Schedule();
 		createVenue(schedule);
@@ -313,38 +293,5 @@ public class PresentationScheduleGA {
 			timeslotID++;
 			venueID=(((i+1)/15)%4)+1;
 		}
-	}
-	
-	public static void check(String fileName, Schedule schedule, GeneticAlgorithm GA) {
-		//Stub
-		try {
-			int index=1;
-			int chromosome[]=new int[118];
-			HashMap<Integer,Integer> presentationMap=new HashMap<>();
-			Scanner test = new Scanner(new File(fileName));
-			while(test.hasNextLine()) {
-				String line[]=test.nextLine().split(",");
-				for(int i=0;i<line.length;i++) {
-					String data[]=line[i].split(" ");
-					if(!data[0].equals("null")) {
-						int presentationID=Integer.parseInt(data[0].substring(1));
-						presentationMap.put(presentationID, index);
-					}
-					index++;
-				}
-			}
-			test.close();
-			for(int i=0;i<118;i++) {
-				chromosome[i]=presentationMap.get(i+1);
-//				System.out.print(chromosome[i]+",");
-			}
-			Individual i=new Individual(chromosome);
-			GA.calcFitness(i, schedule);
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//End stub
 	}
 }

@@ -11,7 +11,6 @@ public class GeneticAlgorithm {
 	private double coolingRate;
 	private Map<Individual,Integer> fitnessHash;
 	private int tournamentSize;
-//	private double selectProbability;
 	
 	public GeneticAlgorithm(int populationSize, double mutationRate, double crossoverRate, int elitismCount,
 			int tournamentSize, double coolingRate) {
@@ -20,7 +19,6 @@ public class GeneticAlgorithm {
 		this.crossoverRate = crossoverRate;
 		this.elitismCount = elitismCount;
 		this.tournamentSize = tournamentSize;
-//		this.selectProbability=selectProbability;
 		this.coolingRate=coolingRate;
 		this.fitnessHash=new LinkedHashMap<Individual,Integer>(){
 			protected boolean removeEldestEntry(Map.Entry<Individual,Integer>eldest) {
@@ -57,7 +55,6 @@ public class GeneticAlgorithm {
 		cloneSchedule.createScheduledPresentations(individual);
 		int fitness=-cloneSchedule.calcPenalty();
 		individual.setFitness(fitness);
-//		System.out.println("Fitness: "+fitness);
 		this.fitnessHash.put(individual, fitness);
 		return fitness;
 
@@ -71,25 +68,6 @@ public class GeneticAlgorithm {
 		return population.getFittest(0).getFitness() == 0 ;
 	}
 	
-//	public Individual selectParent(Population population) {
-//		// Get individuals
-//		Individual individuals[] = population.getIndividuals();
-//
-//		// Spin roulette wheel
-//		double populationFitness = population.getPopulationFitness();
-//		double rouletteWheelPosition = Math.random() * populationFitness;
-//
-//		// Find parent
-//		double spinWheel = 0;
-//		for (Individual individual : individuals) {
-//			spinWheel += individual.getFitness();
-//			if (spinWheel >= rouletteWheelPosition) {
-//				return individual;
-//			}
-//		}
-//		return individuals[population.size() - 1];
-//	}
-	
 	public Individual selectParent(Population population) {
 		// Create tournament
 		Population tournament = new Population(this.tournamentSize);
@@ -101,33 +79,26 @@ public class GeneticAlgorithm {
 			tournament.setIndividual(i, tournamentIndividual);
 		}
 
-		// Return the best
+		// Return the best individual in the tournament
 		return tournament.getFittest(0);
-//		for(int i=0; i<this.tournamentSize; i++) {
-//			Individual tournamentIndividual = tournament.getFittest(i);
-//			if(selectProbability>Math.random()) {
-//				return tournamentIndividual;
-//			}
-//		}
-//		return tournament.getFittest(this.tournamentSize-1);
 	}
 	
 	public Population mutatePopulation(Population population, Schedule schedule) {
 		// Initialize new population
 		Population newPopulation = new Population(this.populationSize);
 
-		// Loop over current population by fitness
+		// Loop over the current population based on fitness value
 		for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) {
 			Individual individual = population.getFittest(populationIndex);
 
-			// Create random individual to swap genes with
+			// Create new random individual to swap genes
 			Individual randomIndividual = new Individual(schedule);
 				for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++) {
 					// Skip mutation if this is an elite individual
 					if (populationIndex >= this.elitismCount) {
-						// Does this gene need mutation?
+						// Perform mutation if the mutation rate is higher than the random value
 						if (this.mutationRate * temperature> Math.random()) {
-							// Swap for new gene
+							// Swap gene
 							individual.setGene(geneIndex, randomIndividual.getGene(geneIndex));
 						}
 				}
@@ -138,41 +109,6 @@ public class GeneticAlgorithm {
 		// Return mutated population
 		return newPopulation;
 	}
-
-//	public Population crossoverPopulation(Population population) {
-//		// Create new population
-//		Population newPopulation = new Population(population.size());
-//
-//		// Loop over current population by fitness
-//		for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) {
-//			Individual parent1 = population.getFittest(populationIndex);
-//
-//			// Apply crossover to this individual?
-//			if (this.crossoverRate*temperature> Math.random() && populationIndex >= this.elitismCount) {
-//				// Initialize offspring
-//				Individual offspring = new Individual(parent1.getChromosomeLength());
-//				
-//				// Find second parent
-//				Individual parent2 = selectParent(population);
-//
-//				// Loop over genome
-//				for (int geneIndex = 0; geneIndex < parent1.getChromosomeLength(); geneIndex++) {
-//					// Use half of parent1's genes and half of parent2's genes
-//					if (0.5 > Math.random()) {
-//						offspring.setGene(geneIndex, parent1.getGene(geneIndex));
-//					} else {
-//						offspring.setGene(geneIndex, parent2.getGene(geneIndex));
-//					}
-//				}
-//				// Add offspring to new population
-//				newPopulation.setIndividual(populationIndex, offspring);
-//			} else {
-//				// Add individual to new population without applying crossover
-//				newPopulation.setIndividual(populationIndex, parent1);
-//			}
-//		}
-//		return newPopulation;
-//	}
 	
 	public Population crossoverPopulation(Population population) {
 		// Create new population
@@ -182,17 +118,18 @@ public class GeneticAlgorithm {
 		for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) {
 			Individual parent = population.getFittest(populationIndex);
 
-			// Apply crossover to this individual?
+			// Perform crossover if the crossover rate is higher than the random value
+			// and the individual is not an elite individual
 			if (this.crossoverRate*temperature> Math.random() && populationIndex >= this.elitismCount) {
-				// Initialize offspring
+				// Initialize 2 offspring
 				Individual offspring1 = new Individual(parent.getChromosomeLength());
 				Individual offspring2 = new Individual(parent.getChromosomeLength());
 				
-				// Find second parent
+				// Find 2 parents
 				Individual parent1 = selectParent(population);
 				Individual parent2 = selectParent(population);
 
-				// Loop over genome
+				// Loop over gene
 				for (int geneIndex = 0; geneIndex < parent1.getChromosomeLength(); geneIndex++) {
 					// Use half of parent1's genes and half of parent2's genes
 					if (0.5 > Math.random()) {
@@ -203,62 +140,15 @@ public class GeneticAlgorithm {
 						offspring2.setGene(geneIndex, parent1.getGene(geneIndex));
 					}
 				}
-				// Add offspring to new population
+				// Add the new offspring to new population
 				newPopulation.setIndividual(populationIndex, offspring1);
 				populationIndex++;
 				if(populationIndex<population.size())
 					newPopulation.setIndividual(populationIndex, offspring2);
-				
-				
-				
 			} else {
-				// Add individual to new population without applying crossover
+				// Add the elite individual to new population without undergoing crossover
 				newPopulation.setIndividual(populationIndex, parent);
 			}
-		}
-		return newPopulation;
-	}
-	
-	public Population simulatedAnnealing(Population population, Schedule schedule) {
-		Population newPopulation = new Population(population.size());
-		for(int populationIndex=0;populationIndex<population.size();populationIndex++) {
-			Individual individual = population.getFittest(populationIndex);
-			if(populationIndex>=this.elitismCount) {
-				int chromosome[] = new int[individual.getChromosomeLength()];
-				int index1 = (int) (Math.random()*individual.getChromosomeLength());
-				int index2 = (int) (Math.random()*individual.getChromosomeLength());
-//				System.out.println(index1+" swap with "+index2);
-				for(int i=0;i<individual.getChromosomeLength();i++) {
-					chromosome[i]=individual.getChromosome()[i];
-//					System.out.print(chromosome[i]+", ");
-				}
-//				System.out.println();
-				//swap
-				int temp=chromosome[index1];
-				chromosome[index1]=chromosome[index2];
-				chromosome[index2]=temp;
-				Individual newIndividual= new Individual(chromosome);
-//				System.out.println("Length: "+newIndividual.getChromosomeLength());
-//				System.out.println(newIndividual.getChromosomeLength());
-				int fitness=calcFitness(individual,schedule);
-//				System.out.println("Ori: "+fitness);
-				int newFitness=calcFitness(newIndividual,schedule);
-//				System.out.println("New: "+newIndividual.getFitness());
-//				System.out.println("New: "+newFitness);
-				if(newFitness>fitness) {
-					newPopulation.setIndividual(populationIndex, newIndividual);
-				}else {
-					double acceptProb=Math.exp((double)(newFitness-fitness)/temperature);
-					if(Math.random()<acceptProb) {
-						newPopulation.setIndividual(populationIndex, newIndividual);
-					}else {
-						newPopulation.setIndividual(populationIndex,individual);
-					}
-				}
-			}else {
-				newPopulation.setIndividual(populationIndex, individual);
-			}
-			
 		}
 		return newPopulation;
 	}

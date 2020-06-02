@@ -31,7 +31,7 @@ public class Population {
 	}
 	
 	public Individual getFittest(int offset) {
-		// Order population by fitness
+		// Sort the population based on fitness value
 		Arrays.sort(this.population, new Comparator<Individual>() {
 			@Override
 			public int compare(Individual o1, Individual o2) {

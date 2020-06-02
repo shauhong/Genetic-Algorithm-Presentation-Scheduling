@@ -3,11 +3,8 @@ import java.util.Arrays;
 public class Individual {
 	private int[] chromosome;
 	private int fitness = -Integer.MAX_VALUE;
-//	private int[] hcViolations=new int[4];
-//	private int[] scViolations=new int[3];
 
 	public Individual(int chromosomeLength) {
-		// Create random individual
 		int[] individual;
 		individual = new int[chromosomeLength];
 		for (int gene = 0; gene < chromosomeLength; gene++) {
@@ -52,27 +49,6 @@ public class Individual {
 	public int getFitness() {
 		return this.fitness;
 	}
-	
-//	public void setHc(int hc01,int hc02,int hc03,int hc04) {
-//		this.hcViolations[0]=hc01;
-//		this.hcViolations[1]=hc02;
-//		this.hcViolations[2]=hc03;
-//		this.hcViolations[3]=hc04;
-//	}
-//	
-//	public void setSc(int sc01,int sc02,int sc03) {
-//		this.scViolations[0]=sc01;
-//		this.scViolations[1]=sc02;
-//		this.scViolations[2]=sc03;
-//	}
-//	
-//	public int[] getHc() {
-//		return this.hcViolations;
-//	}
-//	
-//	public int[] getSc() {
-//		return this.scViolations;
-//	}
 	
 	public String toString() {
 		String output = "";
