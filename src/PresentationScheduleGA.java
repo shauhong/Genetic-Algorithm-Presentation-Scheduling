@@ -13,8 +13,7 @@ public class PresentationScheduleGA {
 		//Initialize timetable
 		Schedule schedule = initializeSchedule();
 		//Initialize GA
-		GeneticAlgorithm GA = new GeneticAlgorithm(200,0.01,0.9,10,20,0.9,0.001);	
-//		check("GeneratedSchedule.csv",schedule,GA);
+		GeneticAlgorithm GA = new GeneticAlgorithm(100,0.01,0.9,5,15,0.001);	
 		//Initialize population
 		Population population=GA.initPopulation(schedule);
 		//Evaluate population
@@ -25,11 +24,14 @@ public class PresentationScheduleGA {
         while (!GA.isTerminationConditionMet(generation, 1000) 
                 && !GA.isTerminationConditionMet(population)) {
                 // Print fitness
-                System.out.println("G" + generation + " Best fitness: " + population.getFittest(0).getFitness());
+                System.out.println("Generation " + generation + ", Best Fitness: "
+                + population.getFittest(0).getFitness());
                 // Apply crossover
-                population = GA.crossoverPopulation(population,schedule);
+                population = GA.crossoverPopulation(population);
                 // Apply mutation
                 population = GA.mutatePopulation(population, schedule);
+                // Apply Simulated Annealing
+//                population = GA.simulatedAnnealing(population, schedule);
                 // Evaluate population
                 GA.evalPopulation(population, schedule);
                 //Cool Temperature
@@ -39,42 +41,90 @@ public class PresentationScheduleGA {
             }
         Instant end = Instant.now();
         Duration timeEllapsed = Duration.between(start, end);
-        System.out.println("Time taken: "+timeEllapsed.toMillis()+" milliseconds");
 		//Print final fitness
+        int finalFitness=population.getFittest(0).getFitness();
 		schedule.createScheduledPresentations(population.getFittest(0));
+		Presentation presentations[]=schedule.getScheduledPresentations();
 		System.out.println();
-		System.out.println("Solution found in "+generation+" generations");
-		System.out.println("Final solution fitness: "+population.getFittest(0).getFitness());
+		System.out.println("Number of generations: "+--generation);
+//		System.out.println("Time taken: "+timeEllapsed.toMillis()+" milliseconds");
+		System.out.println("Final solution fitness: "+finalFitness);
+		System.out.println("Hard constraints violated: "+Math.abs(finalFitness/100)+
+				"\tSoft constraints violated: "+Math.abs(finalFitness%100));
 		
 		//Print final schedule
-		Presentation presentations[]=schedule.getScheduledPresentations();
-		for(int i=0;i<presentations.length;i++) {
-			System.out.println("Presentation: P"+presentations[i].getPresentationID());
-			int timeslotID=presentations[i].getTimeslotID();
-			System.out.println("Timeslot: "+schedule.getTimeSlot(timeslotID).getTimeslot());
-			System.out.println("Venue: "+schedule.getVenue(schedule.getTimeSlot(timeslotID).getVenueID()).getVenueName());
-			
-			
-		}
+	
+//		for(int i=0;i<presentations.length;i++) {
+//			System.out.println("Presentation: P"+presentations[i].getPresentationID());
+//			int timeslotID=presentations[i].getTimeslotID();
+//			System.out.println("Timeslot: "+schedule.getTimeSlot(timeslotID).getTimeslot());
+//			System.out.println("Venue: "+schedule.getVenue(schedule.getTimeSlot(timeslotID).getVenueID()).getVenueName());
+//			
+//			
+//		}
 		
 		//Write to external file
-		writeGeneratedSchedule(presentations,schedule.getTimeslots().size());
+		writeGeneratedSchedule("GeneratedSchedule.csv",presentations,schedule.getTimeslots().size());
+		//Print output
+		printSchedule("GeneratedSchedule.csv");
 	}
 	
-	
-	
-	public static void writeGeneratedSchedule(Presentation[] presentations, int totalTimeslot) {
+	public static void printSchedule(String fileName) {
 		try {
-			PrintWriter writer=new PrintWriter(new File("GeneratedSchedule.csv"));
+			Scanner scn=new Scanner(new File(fileName));
+			System.out.print("Day\tVenue\t");
+			int time=900;
+			while(time<1730) {
+				if(time==1300||time==1330) {
+					time+=30;
+					if(time%100==60) {
+						time=time+100-60;
+					}
+					continue;
+				}
+				System.out.print(time+"\t");
+				time+=30;
+				if(time%100==60) {
+					time=time+100-60;
+				}
+			}
+			System.out.println();
+			String[] days={"Mon","Tues","Wed","Thurs","Fri"};
+			for(int i=0;i<days.length;i++) {
+				System.out.print(days[i]+"\t");
+				String[] locs= {"VR","MR","IR","BJIM"};
+				for(int j=0;j<locs.length;j++) {
+					if(j>0) System.out.print("\t");
+					System.out.print(locs[j]+"\t");
+					String line[]=scn.nextLine().split(",");
+					for(int k=0;k<line.length;k++) {
+						System.out.print(line[k]+"\t");
+					}
+					System.out.println();
+				
+				}
+				System.out.println();
+				
+				
+			}
+			scn.close();
+		}catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void writeGeneratedSchedule(String fileName,Presentation[] presentations, int totalTimeslot) {
+		try {
+			PrintWriter writer=new PrintWriter(new File(fileName));
 			StringBuilder line=new StringBuilder();
 			for(int timeSlot=1;timeSlot<=totalTimeslot;timeSlot++) {
 				boolean found=false;
 				for(int j=0;j<presentations.length;j++) {
 					if(timeSlot==presentations[j].getTimeslotID()) {
-						line.append("P"+presentations[j].getPresentationID()+" "+presentations[j].getStaffID()[0]
-								+" "+presentations[j].getStaffID()[1]
-								+" "+presentations[j].getStaffID()[2]);
-//						line.append("P"+presentations[j].getPresentationID());
+//						line.append("P"+presentations[j].getPresentationID()+" "+presentations[j].getStaffID()[0]
+//								+" "+presentations[j].getStaffID()[1]
+//								+" "+presentations[j].getStaffID()[2]);
+						line.append("P"+presentations[j].getPresentationID());
 						found=true;
 						break;
 					}
@@ -286,6 +336,7 @@ public class PresentationScheduleGA {
 			test.close();
 			for(int i=0;i<118;i++) {
 				chromosome[i]=presentationMap.get(i+1);
+//				System.out.print(chromosome[i]+",");
 			}
 			Individual i=new Individual(chromosome);
 			GA.calcFitness(i, schedule);

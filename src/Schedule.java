@@ -114,6 +114,8 @@ public class Schedule {
 			Presentation presentation=scheduledPresentations[i];
 			String staffsID[]=presentation.getStaffID();
 			int timeslotID=presentation.getTimeslotID();
+//			System.out.println("Ts: "+this.getTimeSlot(timeslotID).getVenueID());
+//			int venueID=this.getTimeSlot(timeslotID).getVenueID();
 			int venueID=this.getTimeSlot(presentation.getTimeslotID()).getVenueID();
 			Staff staffs[]=new Staff[staffsID.length];
 			Venue venue = this.getVenue(venueID);	
@@ -248,6 +250,7 @@ public class Schedule {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].isChangeVenue()) {
 					if(staffs[j].venueChanged()) {
+//						System.out.println(staffs[j].getStaffID()+" changed venue.");
 						penalty+=1;
 					}
 				}
