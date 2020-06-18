@@ -7,21 +7,19 @@ public class Staff {
 	private boolean changeVenue;
 	private int presentationCons;
 	private int presentationDays;
-	private int currentCons;
-	private boolean exceedCons;
 	
 	public Staff(String staffID) {
 		this.staffID=staffID;
 		unavailableSlots=new ArrayList<>();
 		currentSlots=new ArrayList<>();
-		currentCons=0;
-		exceedCons=false;
 	}
 	
+	//reset the current slots of the staff
 	public void resetCurrentSlot() {
 		currentSlots=new ArrayList<>();
 	}
 	
+	//add a new time slot to the current slots of the staff
 	public void addSlot(int timeSlotID) {
 		currentSlots.add(timeSlotID);
 	}
@@ -30,10 +28,7 @@ public class Staff {
 		return currentSlots;
 	}
 	
-	public boolean isChangeVenue() {
-		return changeVenue;
-	}
-	
+	//return the number days of presentations of the staff
 	public int getNumOfPresentationDays() {
 		int numOfPresentationDays=0;
 		boolean workingDays[]=new boolean[] 
@@ -48,7 +43,8 @@ public class Staff {
 		}
 		return numOfPresentationDays;
 	}
-		
+	
+	//return the consecutive presentation slots of the staff
 	public int getConsecutiveSlot() {
 		int consecutiveCount=0;
 		int maxCount=0;
@@ -76,8 +72,8 @@ public class Staff {
 		return maxCount;
 	}
 	
+	//check if the staff changed venue during consecutive presentations
 	public boolean venueChanged() {
-		//SC03
 		Collections.sort(currentSlots);
 		for(int currentTimeslot:currentSlots) {
 			int currentIndex=currentTimeslot-1;
@@ -97,34 +93,21 @@ public class Staff {
 		return false;
 	}
 	
-	
+	//load the unavailable time slot of the staff
 	public void loadTimeslot(ArrayList<Integer> unavailableSlot) {
 		this.unavailableSlots=unavailableSlot;
 	}
 	
-	public void setCurrentCons(int currentCons) {
-		this.currentCons=currentCons;
-	}
-	
-	public int getCurrentCons() {
-		return currentCons;
-	}
-	
-	public void setExceedCons(boolean exceedCons) {
-		this.exceedCons=exceedCons;
-	}
-	
-	public boolean isExceedCons() {
-		return exceedCons;
-	}
-	public String getStaffID() {
-		return staffID;
-	}
-	
+	//get the unavailable time slot of the staff
 	public ArrayList<Integer> getUnavailableSlots(){
 		return unavailableSlots;
 	}
 	
+	public String getStaffID() {
+		return staffID;
+	}
+	
+	//check if the staff is unavailable at the specified time slot
 	public boolean isUnavailable(int timeslotID) {
 		for(int i=0;i<unavailableSlots.size();i++) {
 			if(unavailableSlots.get(i)==timeslotID) {
@@ -133,7 +116,11 @@ public class Staff {
 		}
 		return false;
 	}
-
+	
+	public boolean isChangeVenue() {
+		return changeVenue;
+	}
+	
 	public void setChangeVenue(boolean changeVenue) {
 		this.changeVenue = changeVenue;
 	}

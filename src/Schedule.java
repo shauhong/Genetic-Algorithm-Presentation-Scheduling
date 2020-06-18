@@ -86,6 +86,7 @@ public class Schedule {
 		return numPresentations;
 	}
 	
+	//Create schedule presentation based on individual choromosome
 	public void createScheduledPresentations(Individual individual) {
 		Presentation scheduledPresentations[]=new Presentation[this.getNumPresentations()];
 		int chromosome[]=individual.getChromosome();
@@ -105,6 +106,7 @@ public class Schedule {
 		this.scheduledPresentations=scheduledPresentations;
 	}
 	
+	//Calculate penalty of the scheduled presentation
 	public int calcPenalty() {
 		int penalty=0;
 		ArrayList<String> SC01=new ArrayList<>();
@@ -114,8 +116,6 @@ public class Schedule {
 			Presentation presentation=scheduledPresentations[i];
 			String staffsID[]=presentation.getStaffID();
 			int timeslotID=presentation.getTimeslotID();
-//			System.out.println("Ts: "+this.getTimeSlot(timeslotID).getVenueID());
-//			int venueID=this.getTimeSlot(timeslotID).getVenueID();
 			int venueID=this.getTimeSlot(presentation.getTimeslotID()).getVenueID();
 			Staff staffs[]=new Staff[staffsID.length];
 			Venue venue = this.getVenue(venueID);	
@@ -124,38 +124,35 @@ public class Schedule {
 			}
 					
 			//Hard constraints
-			penalty+=this.samePresentationTime(i, timeslotID);
-			penalty+=this.concurrentStaff(i, timeslotID, staffsID);
-			penalty+=this.unavailableVenue(venue,timeslotID);
-			penalty+=this.unavailableStaff(staffs,timeslotID);
+			penalty+=this.samePresentationTime(i, timeslotID); //HC01 
+			penalty+=this.concurrentStaff(i, timeslotID, staffsID); //HC02
+			penalty+=this.unavailableVenue(venue,timeslotID);  //HC03
+			penalty+=this.unavailableStaff(staffs,timeslotID); //HC04
+			
 			//Soft constraints
-			penalty+=this.consecutivePresentations(SC01, staffs);
-			penalty+=this.numOfDays(SC02, staffs);
-			penalty+=this.changeOfVenue(SC03, staffs);
+			penalty+=this.consecutivePresentations(SC01, staffs); //SC01
+			penalty+=this.numOfDays(SC02, staffs); //SC02
+			penalty+=this.changeOfVenue(SC03, staffs); //SC03
 		}
 		for(String staffID:staffs.keySet()) {
 			staffs.get(staffID).resetCurrentSlot();
 		}
-		
 		return penalty;
 	}
 	
-	public int calHardConstraints() {
-		int penalty=0;
-		return penalty;
-	}
-	
+	//Calculate Penalty for HC01
 	public int samePresentationTime(int i, int timeslotID) {
 		int penalty=0;
 		//HC01
 		for(int j=0;j<scheduledPresentations.length;j++) {
 			if(j!=i && timeslotID==scheduledPresentations[j].getTimeslotID()) {
-				penalty+=100;
+				penalty+=1000;
 			}
 		}
 		return penalty;
 	}
 	
+	//Calculate Penalty for HC02
 	public int concurrentStaff(int i,int timeslotID, String[] staffsID) {
 		int penalty=0;
 		String timeslot = this.getTimeSlot(timeslotID).getTimeslot();
@@ -168,7 +165,7 @@ public class Schedule {
 				for(int k=0;k<tempStaffsID.length;k++) {
 					for(int l=0;l<tempStaffsID.length;l++) {
 						if(tempStaffsID[k].equals(staffsID[l])) {
-							penalty+=100;
+							penalty+=1000;
 						}
 					}
 				}
@@ -177,18 +174,20 @@ public class Schedule {
 		return penalty;
 	}
 	
+	//Calculate Penalty for HC03
 	public int unavailableVenue(Venue venue, int timeslotID) {
 		int penalty=0;
 		//HC03
 		ArrayList<Integer> unavailableVenueSlots=venue.getUnavaibleSlots();
 		for(int unavailableTimeslotID:unavailableVenueSlots) {
 			if(unavailableTimeslotID==timeslotID) {
-				penalty+=100;
+				penalty+=1000;
 			}
 		}
 		return penalty;
 	}
 	
+	//Calculate Penalty for HC04
 	public int unavailableStaff(Staff[] staffs, int timeslotID) {
 		int penalty=0;
 		//HC04
@@ -198,13 +197,13 @@ public class Schedule {
 		}
 		for(int unavailableTimeslotID:unavailableStaffSlots) {
 			if(unavailableTimeslotID==timeslotID) {
-				penalty+=100;
+				penalty+=1000;
 			}
 		}
 		return penalty;
 	}
 	
-	
+	//Calculate Penalty for SC01
 	public int consecutivePresentations(ArrayList<String> checkedStaff, Staff[] staffs) {
 		int penalty=0;
 		//SC01
@@ -212,13 +211,14 @@ public class Schedule {
 			if(!checkedStaff.contains(staffs[j].getStaffID())) {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].getConsecutiveSlot()>staffs[j].getPresentationCons()) {
-					penalty+=1;
+					penalty+=10;
 				}
 			}
 		}
 		return penalty;
 	}
 	
+	//Calculate Penalty for SC02
 	public int numOfDays(ArrayList<String> checkedStaff, Staff[] staffs) {
 		int penalty=0;
 		//SC02
@@ -226,13 +226,14 @@ public class Schedule {
 			if(!checkedStaff.contains(staffs[j].getStaffID())) {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].getNumOfPresentationDays()>staffs[j].getPresentationDays()) {
-					penalty+=1;
+					penalty+=10;
 				}
 			}
 		}
 		return penalty;
 	}
 	
+	//Calculate Penalty for SC03
 	public int changeOfVenue(ArrayList<String> checkedStaff,Staff[] staffs) {
 		int penalty=0;
 		//SC03
@@ -241,7 +242,7 @@ public class Schedule {
 				checkedStaff.add(staffs[j].getStaffID());
 				if(staffs[j].isChangeVenue()) {
 					if(staffs[j].venueChanged()) {
-						penalty+=1;
+						penalty+=10;
 					}
 				}
 			}

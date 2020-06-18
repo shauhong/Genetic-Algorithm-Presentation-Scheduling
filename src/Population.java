@@ -30,6 +30,7 @@ public class Population {
 		return this.population;
 	}
 	
+	//Return the individual based on the offset, from the best to worst individuals
 	public Individual getFittest(int offset) {
 		// Sort the population based on fitness value
 		Arrays.sort(this.population, new Comparator<Individual>() {
@@ -44,12 +45,16 @@ public class Population {
 			}
 		});
 
-		// Return the fittest individual
+		// Return the offset from the fittest individual
 		return this.population[offset];
 	}
 	
 	public void setPopulationFitness(int fitness) {
 		this.populationFitness=fitness;
+	}
+	
+	public int getPopulationFitness() {
+		return populationFitness;
 	}
 	
 	public int size() {
@@ -64,6 +69,7 @@ public class Population {
 		return population[offset];
 	}
 	
+	//Shuffle the entire population into random order
 	public void shuffle() {
 		Random rnd = new Random();
 		for(int i=0;i<population.length;i++) {
@@ -73,9 +79,4 @@ public class Population {
 			population[i]=temp;
 		}
 	}
-	
-	public int getPopulationFitness() {
-		return populationFitness;
-	}
-
 }

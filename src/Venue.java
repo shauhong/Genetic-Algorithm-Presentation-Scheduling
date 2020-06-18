@@ -19,14 +19,17 @@ public class Venue {
 		return venueName;
 	}
 	
+	//load unavailable time slots of the venue
 	public void loadTimeslot(ArrayList<Integer> unavailableSlots) {
 		this.unavailableSlots=unavailableSlots;
 	}
 	
+	//return the unavailable time slots of the venue
 	public ArrayList<Integer> getUnavaibleSlots(){
 		return unavailableSlots;
 	}
 	
+	//check if the venue is available at certain time slot
 	public boolean isUnavailable(int timeslotID) {
 		for(int i=0;i<unavailableSlots.size();i++) {
 			if(unavailableSlots.get(i)==timeslotID) {

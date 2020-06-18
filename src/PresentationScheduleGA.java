@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class PresentationScheduleGA {
 	public static void main(String[] arg) {
-		//Initialize timetable
+		//Initialize schedule
 		Schedule schedule = initializeSchedule();
 		//Initialize Genetic Algorithm
 		GeneticAlgorithm GA = new GeneticAlgorithm(100,0.01,0.9,5,15,0.001);	
@@ -36,19 +36,23 @@ public class PresentationScheduleGA {
                 // Increment the current generation
                 generation++;
             }
-		//Print final fitness
         int finalFitness=population.getFittest(0).getFitness();
+        //Print final fitness
+        printFinalResult(--generation,finalFitness);
 		schedule.createScheduledPresentations(population.getFittest(0));
-		Presentation presentations[]=schedule.getScheduledPresentations();
-		System.out.println();
-		System.out.println("Number of generations: "+--generation);
-		System.out.println("Final solution fitness: "+finalFitness);
-		System.out.println("Hard constraints violated: "+Math.abs(finalFitness/100)+
-				"\tSoft constraints violated: "+Math.abs(finalFitness%100));		
-		//Write to external file
+		Presentation presentations[]=schedule.getScheduledPresentations();	
+		//Write generated schedule to external file
 		writeGeneratedSchedule("GeneratedSchedule.csv",presentations,schedule.getTimeslots().size());
-		//Print output
+		//Print generated schedule
 		printSchedule("GeneratedSchedule.csv");
+	}
+	
+	public static void printFinalResult(int generation,int finalFitness) {
+		System.out.println();
+		System.out.println("Number of generations: "+generation);
+		System.out.println("Final solution fitness: "+finalFitness);
+		System.out.println("Hard constraints violated: "+Math.abs(finalFitness/1000)+
+				"\tSoft constraints violated: "+Math.abs(finalFitness%1000)/10);	
 	}
 	
 	public static void printSchedule(String fileName) {
@@ -85,9 +89,7 @@ public class PresentationScheduleGA {
 					System.out.println();
 				
 				}
-				System.out.println();
-				
-				
+				System.out.println();		
 			}
 			scn.close();
 		}catch(FileNotFoundException e) {
@@ -124,6 +126,7 @@ public class PresentationScheduleGA {
 		}
 	}
 	
+	//Initialize the schedule based on the external files and information listed
 	public static Schedule initializeSchedule() {
 		Schedule schedule = new Schedule();
 		createVenue(schedule);
@@ -137,6 +140,7 @@ public class PresentationScheduleGA {
 		return schedule;
 	}
 	
+	//Read and load from file that contains the staff preference to attend consecutive presentations
 	public static void readStaffConsecutive(String fileName,Schedule schedule) {
 		File file = new File(fileName);
 		try {
@@ -154,6 +158,7 @@ public class PresentationScheduleGA {
 		}
 	}
 	
+	//Read and load from file that contains the staff preference of number of days of presentation
 	public static void readNumOfDays(String fileName,Schedule schedule) {
 		File file = new File(fileName);
 		try {
@@ -171,6 +176,8 @@ public class PresentationScheduleGA {
 		}
 	}
 	
+	//Read and load from file that contains the staff preference to attend consecutive presentation
+	//at the same venue
 	public static void readChangeOfVenue(String fileName,Schedule schedule) {
 		File file = new File(fileName);
 		try {
@@ -192,6 +199,7 @@ public class PresentationScheduleGA {
 		}
 	}
 	
+	//Read and load from file that contains the information of the presentations
 	public static void readPresentationsFromCSV(String fileName, Schedule schedule) {
 		File file=new File(fileName);
 		try {
@@ -223,6 +231,7 @@ public class PresentationScheduleGA {
 
 	}
 	
+	//Read and load from file that contains the information of the unavailability of staffs
 	public static void readUnavailableStaff(String fileName,Schedule schedule) {
 		File file = new File(fileName);
 		try {
@@ -249,6 +258,7 @@ public class PresentationScheduleGA {
 
 	}
 	
+	//Read and load from file that contains the information on the unavailability of venue
 	public static void readUnavailableVenue(String fileName,Schedule schedule) {
 		File file = new File(fileName);
 		try {
@@ -271,6 +281,7 @@ public class PresentationScheduleGA {
 
 	}
 	
+	//Create all venue available
 	public static void createVenue(Schedule schedule) {
 		schedule.addVenue(1, "Viva Room, Level 7");
 		schedule.addVenue(2, "Meeting Room, Level 7");
@@ -278,6 +289,7 @@ public class PresentationScheduleGA {
 		schedule.addVenue(4, "BJIM Discussion Room, Level 5");
 	}
 	
+	//Create all time slot available
 	public static void createTimeslot(Schedule schedule) {
 		String date[]=new String[] {"Monday","Tuesday","Wednesday","Thursday","Friday"};
 		String time[]=new String[] {

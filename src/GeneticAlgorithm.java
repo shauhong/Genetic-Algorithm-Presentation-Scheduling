@@ -27,16 +27,19 @@ public class GeneticAlgorithm {
 		};
 	}
 	
+	//Initialize population
 	public Population initPopulation(int chromosomeLength) {
 		Population population = new Population(chromosomeLength);
 		return population;
 	}
 	
+	//Initialize population based on schedule
 	public Population initPopulation(Schedule schedule) {
 		Population population = new Population(populationSize,schedule);
 		return population;
 	}
 	
+	//Evaluate the population by calculating the fitness value of each individual
 	public void evalPopulation(Population population, Schedule schedule) {
 		Individual[] individuals=population.getIndividuals();
 		int populationFitness=0;
@@ -46,6 +49,7 @@ public class GeneticAlgorithm {
 		population.setPopulationFitness(populationFitness);
 	}
 	
+	//Calculate the fitness value of the individual
 	public int calcFitness(Individual individual, Schedule schedule) {
 		Integer storedFitness=this.fitnessHash.get(individual);
 		if(storedFitness!=null) {
@@ -68,6 +72,7 @@ public class GeneticAlgorithm {
 		return population.getFittest(0).getFitness() == 0 ;
 	}
 	
+	//Perform tournament selection to select parent
 	public Individual selectParent(Population population) {
 		// Create tournament
 		Population tournament = new Population(this.tournamentSize);
@@ -83,6 +88,7 @@ public class GeneticAlgorithm {
 		return tournament.getFittest(0);
 	}
 	
+	//Perform uniform mutation over the entire population
 	public Population mutatePopulation(Population population, Schedule schedule) {
 		// Initialize new population
 		Population newPopulation = new Population(this.populationSize);
@@ -110,6 +116,7 @@ public class GeneticAlgorithm {
 		return newPopulation;
 	}
 	
+	//Perform uniform crossover over the entire population
 	public Population crossoverPopulation(Population population) {
 		// Create new population
 		Population newPopulation = new Population(population.size());
@@ -153,6 +160,7 @@ public class GeneticAlgorithm {
 		return newPopulation;
 	}
 	
+	//Cool down the temperature by cooling rate
 	public void coolTemperature() {
 		if(temperature<finalTemperature) {
 			temperature=finalTemperature;
